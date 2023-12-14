@@ -1,0 +1,55 @@
+# Code used for various visualizations such as scatterlpots, tables, correlation charts, pairs plots, density plots, etc.
+
+ggplot(health, aes(x = rplasma, fill = sex)) +
+  geom_density(alpha = 0.5) +
+  theme_bw() +
+  labs(title = "Plasma Retinol Concentration by Sex", 
+       x = "Plasma Retinol (µg/ml)", y = "Density") +
+  scale_fill_manual(values = c("blue", "red"), labels = c("Male", "Female"))
+
+-----------------------------------------------------------------------------------------------------------------------
+
+pairs(health[, c("age", "quetlet", "cals", "fat", "fiber", "alc", "chol", "bdiet", "rdiet", "rplasma")])
+
+-----------------------------------------------------------------------------------------------------------------------
+
+library(caret)
+install.packages("caret")
+ldamodel3 <- lda(rplasma ~ cals, fat, fiber, alc, chol, bdiet, rdiet, data = health)
+plot(varImp(ldamodel3), main = "LDa Variable Importance Plot")
+
+-----------------------------------------------------------------------------------------------------------------------
+
+library(MASS)
+y <- health$rplasma
+x <- health[, c("age", "sex","smoke", "quetlet", "vituse", "cals", "fat", 
+                "fiber", "alc", "chol", "bdiet", "rdiet", "bplasma")]
+ldamodel <- lda(x, y)
+varimp <- ldamodel$scaling
+barplot(varimp, main = "LDA Variable Importance Plot", 
+        names.arg = c("Age", "Sex", "Smoke", "Quetlet", "VitUse", "Cals", "Fat",
+                      "Fiber", "Alc", "Chol", "Bdiet", "Rdiet", 'Bplasma'), 
+        col = my_colors)
+my_colors <- c("red", "blue", "green", "purple", "pink", "orange", "brown", 
+                        "black", "yellow", "lightblue", "darkblue", "grey", "darkgreen")
+
+-----------------------------------------------------------------------------------------------------------------------
+
+ggplot(health, aes(x = cals, y = rplasma)) +
+  geom_point(aes(color = smoke)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Retinol Plasma Concentration Based on Caloric Intake", 
+       x = "# of Calories Consumed/Day", 
+       y = "Retinol Plasma (µg/ml)",
+       color = "Smoking Status") +
+  facet_wrap(~ smoke, ncol = 1)
+
+-----------------------------------------------------------------------------------------------------------------------
+
+ggplot(health, aes(x = cals, y = rplasma, color = smoke)) + 
+  geom_point() +
+  geom_smooth(method = "lm", group = 1) +
+  labs(title = "", x = "# of Calories Consumed/Day", 
+       y = "Retinol PLasma Concentration (µg/ml)",
+       color = "Smoking Status") +
+  scale_color_manual(values = c("red", "blue", "green"))
